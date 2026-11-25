@@ -72,6 +72,11 @@ pub const USER_VIEW_BIAS: u32 = 0x103;
 
 /// `ShaderFlags` bits (metadata) and their `SFI0` feature bits.
 pub(crate) mod flags {
+    /// `DisableMathRefactoring` (D3D's `REFACTORING_ALLOWED` cleared): the
+    /// host compiler may not reassociate float operations or fuse a multiply
+    /// and an add, whatever it would allow itself otherwise. A flag the
+    /// program provides, not one the validator works out from its code.
+    pub const NO_REFACTORING: u64 = 1 << 1;
     pub const RAW_BUFFERS: u64 = 1 << 4;
     pub const STENCIL_REF: u64 = 1 << 11;
     pub const TYPED_UAV_LOADS: u64 = 1 << 13;

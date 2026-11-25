@@ -6,7 +6,10 @@
 //! the code made here does the same float operations in the same order
 //! (DXIL float operations carry no fast-math flags, so the host may not
 //! reorder or fuse them), and the tests in `intersect_tests.rs` run it on
-//! the card against the reference.
+//! the card against the reference. A program with the instruction also
+//! declares [`flags::NO_REFACTORING`]: without it a WARP build (10.0.28000)
+//! fused an edge function's `p * q - r * s` and came out one ulp off the
+//! reference.
 //!
 //! The title's nodes are in title memory, named by address: they are read
 //! through the host's copies of title memory ([`Lower::memory`]), one look
@@ -61,6 +64,9 @@ struct Ray {
 impl<'a> Lower<'a> {
     /// `image_bvh_intersect_ray` and `image_bvh64_intersect_ray`.
     pub(super) fn bvh(&mut self, inst: &Inst, b: usize, i: usize) -> Result<(), Why> {
+        // The test is exact only if the host keeps every float operation as
+        // made (module docs).
+        self.s.flags |= flags::NO_REFACTORING;
         let Fields::Image {
             data,
             addr,
